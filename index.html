@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portrait codé — Générateur</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Portrait codé</h1>
+    <p>Charge une photo, règle la grille, puis génère une page à remplir : chaque numéro correspond à une trame à colorier. Plus la grille est fine, plus le portrait sera reconnaissable.</p>
+  </header>
+
+  <main>
+    <section class="panel controls">
+      <h2>Réglages</h2>
+
+      <label for="photoInput">Photo source</label>
+      <input id="photoInput" type="file" accept="image/*" />
+
+      <label for="gridWidth">Largeur de grille</label>
+      <input id="gridWidth" type="range" min="20" max="100" value="55" />
+      <div class="value-row"><span>20</span><strong id="gridWidthValue">55 cases</strong><span>100</span></div>
+
+      <label for="contrast">Contraste</label>
+      <input id="contrast" type="range" min="-60" max="80" value="20" />
+      <div class="value-row"><span>doux</span><strong id="contrastValue">20</strong><span>fort</span></div>
+
+      <label for="brightness">Luminosité</label>
+      <input id="brightness" type="range" min="-80" max="80" value="0" />
+      <div class="value-row"><span>-</span><strong id="brightnessValue">0</strong><span>+</span></div>
+
+      <label for="cropMode">Recadrage</label>
+      <select id="cropMode">
+        <option value="cover" selected>Remplir la page</option>
+        <option value="contain">Photo entière</option>
+      </select>
+
+      <label for="detailMode">Type de trames</label>
+      <select id="detailMode">
+        <option value="8" selected>8 niveaux — simple</option>
+        <option value="12">12 niveaux — plus détaillé</option>
+      </select>
+
+      <button id="generateBtn" disabled>Générer le portrait codé</button>
+      <button id="printBtn" class="secondary" disabled>Imprimer la grille</button>
+      <button id="downloadBtn" class="secondary" disabled>Télécharger la grille PNG</button>
+      <button id="downloadSolutionBtn" class="secondary" disabled>Télécharger la solution PNG</button>
+
+      <p class="hint">Conseil : choisis une photo avec un visage assez grand, un fond simple et un bon contraste. Pour un rendu façon magazine, commence autour de 55 à 70 cases de large.</p>
+    </section>
+
+    <section class="workspace">
+      <section class="panel screen-only">
+        <h2>Photo préparée</h2>
+        <div class="canvas-wrap"><canvas id="sourceCanvas"></canvas></div>
+      </section>
+
+      <section class="preview-grid">
+        <section id="puzzlePanel" class="panel print-page">
+          <h2>Grille à remplir</h2>
+          <div class="canvas-wrap"><canvas id="puzzleCanvas"></canvas></div>
+        </section>
+
+        <section id="solutionPanel" class="panel screen-only">
+          <h2>Solution</h2>
+          <div class="canvas-wrap"><canvas id="solutionCanvas"></canvas></div>
+        </section>
+      </section>
+
+      <section id="legendPanel" class="panel print-page">
+        <h2>Légende des motifs</h2>
+        <div id="legend" class="legend"></div>
+      </section>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
