@@ -33,23 +33,40 @@ const patterns8 = [
   { id: 8, name: 'noir', fill: 1, draw: drawFull }
 ];
 
+const patterns10 = [
+  { id: null, name: 'vide', fill: 0, draw: drawEmpty },
+  { id: 0, name: 'diag NO-SE bas', fill: 0.1, draw: drawDiagonalBottom },
+  { id: 1, name: 'diag NO-SE haut', fill: 0.2, draw: drawDiagonalTop },
+  { id: 2, name: 'diag NE-SO bas', fill: 0.3, draw: drawDiagonalRight },
+  { id: 3, name: 'diag NE-SO haut', fill: 0.4, draw: drawDiagonalLeft },
+  { id: 4, name: 'moitié bas', fill: 0.5, draw: drawBottomHalf },
+  { id: 5, name: 'moitié haut', fill: 0.6, draw: drawTopHalf },
+  { id: 6, name: 'moitié gauche', fill: 0.7, draw: drawLeftHalf },
+  { id: 7, name: 'moitié droite', fill: 0.8, draw: drawRightHalf },
+  { id: 8, name: 'damier 1', fill: 0.9, draw: drawCheckerboardTLBR },
+  { id: 9, name: 'damier 2', fill: 0.95, draw: drawCheckerboardTRBL },
+  { id: 10, name: 'noir', fill: 1, draw: drawFull }
+];
+
 const patterns12 = [
   { id: 1, name: 'blanc', fill: 0, draw: drawEmpty },
   { id: 2, name: 'petit coin', fill: 0.09, draw: drawSmallTriangle },
-  { id: 3, name: 'coin bas gauche', fill: 0.18, draw: drawTriangleBL },
-  { id: 4, name: 'quart gauche', fill: 0.27, draw: drawLeftQuarter },
-  { id: 5, name: 'moitié gauche', fill: 0.36, draw: drawLeftHalf },
-  { id: 6, name: 'diagonale bas', fill: 0.45, draw: drawDiagonalBottom },
-  { id: 7, name: 'moitié basse', fill: 0.55, draw: drawBottomHalf },
-  { id: 8, name: 'diagonale haut', fill: 0.64, draw: drawDiagonalTop },
-  { id: 9, name: 'deux tiers', fill: 0.73, draw: drawTwoThirds },
-  { id: 10, name: 'trois quarts', fill: 0.82, draw: drawThreeQuarter },
-  { id: 11, name: 'presque noir', fill: 0.91, draw: drawAlmostFull },
-  { id: 12, name: 'noir', fill: 1, draw: drawFull }
+  { id: 3, name: 'quart gauche', fill: 0.27, draw: drawLeftQuarter },
+  { id: 4, name: 'moitié gauche', fill: 0.36, draw: drawLeftHalf },
+  { id: 5, name: 'diagonale bas', fill: 0.45, draw: drawDiagonalBottom },
+  { id: 6, name: 'moitié basse', fill: 0.55, draw: drawBottomHalf },
+  { id: 7, name: 'damier 1', fill: 0.73, draw: drawCheckerboardTLBR },
+  { id: 8, name: 'damier 2', fill: 0.82, draw: drawCheckerboardTRBL },
+  { id: 9, name: 'presque noir', fill: 0.91, draw: drawAlmostFull },
+  { id: 10, name: 'noir', fill: 1, draw: drawFull },
+  { id: 11, name: 'moitié droite', fill: 0.64, draw: drawRightHalf },
+  { id: 12, name: 'moitié haut', fill: 0.18, draw: drawTopHalf }
 ];
 
 function activePatterns() {
-  return detailMode.value === '12' ? patterns12 : patterns8;
+  if (detailMode.value === '12') return patterns12;
+  if (detailMode.value === '10') return patterns10;
+  return patterns8;
 }
 
 function updateLabels() {
@@ -209,8 +226,8 @@ function drawPuzzle(grid, cols, rows, cell) {
   ctx.fillStyle = '#fff';
   ctx.fillRect(0, 0, puzzleCanvas.width, puzzleCanvas.height);
   ctx.strokeStyle = '#999';
-  ctx.lineWidth = 1;
-  ctx.font = `${Math.max(6, cell * 0.42)}px Arial`;
+  ctx.lineWidth = 0.5;
+  ctx.font = `${Math.max(8, cell * 0.7)}px Arial`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = '#111';
@@ -218,7 +235,12 @@ function drawPuzzle(grid, cols, rows, cell) {
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
       ctx.strokeRect(x * cell, y * cell, cell, cell);
-      ctx.fillText(grid[y][x].id, x * cell + cell / 2, y * cell + cell / 2);
+      const pattern = grid[y][x];
+      if (pattern && pattern.id !== null) {
+        ctx.fillStyle = '#111';
+        const label = pattern.id < 10 ? pattern.id.toString() : String.fromCharCode(65 + pattern.id - 10);
+        ctx.fillText(label, x * cell + cell / 2, y * cell + cell / 2);
+      }
     }
   }
 }
@@ -266,7 +288,8 @@ function drawLegend() {
     drawCellPattern(ctx, pattern, 0, 0, 64, true);
 
     const text = document.createElement('div');
-    text.innerHTML = `<strong>${pattern.id}</strong><br><span>${pattern.name}</span>`;
+    const label = pattern.id === null ? 'vide' : pattern.id < 10 ? pattern.id.toString() : String.fromCharCode(65 + pattern.id - 10);
+    text.innerHTML = `<strong>${label}</strong><br><span>${pattern.name}</span>`;
 
     item.appendChild(swatch);
     item.appendChild(text);
@@ -304,6 +327,30 @@ function drawLeftHalf(ctx, x, y, s) {
 
 function drawBottomHalf(ctx, x, y, s) {
   ctx.fillRect(x, y + s / 2, s, s / 2);
+}
+
+function drawRightHalf(ctx, x, y, s) {
+  ctx.fillRect(x + s / 2, y, s / 2, s);
+}
+
+function drawTopHalf(ctx, x, y, s) {
+  ctx.fillRect(x, y, s, s / 2);
+}
+
+function drawTopRightQuarter(ctx, x, y, s) {
+  ctx.fillRect(x + s / 2, y, s / 2, s / 2);
+}
+
+function drawTopLeftQuarter(ctx, x, y, s) {
+  ctx.fillRect(x, y, s / 2, s / 2);
+}
+
+function drawBottomLeftQuarter(ctx, x, y, s) {
+  ctx.fillRect(x, y + s / 2, s / 2, s / 2);
+}
+
+function drawBottomRightQuarter(ctx, x, y, s) {
+  ctx.fillRect(x + s / 2, y + s / 2, s / 2, s / 2);
 }
 
 function drawLeftQuarter(ctx, x, y, s) {
@@ -357,6 +404,36 @@ function drawDiagonalTop(ctx, x, y, s) {
   ctx.lineTo(x + s, y + s);
   ctx.closePath();
   ctx.fill();
+}
+
+function drawDiagonalLeft(ctx, x, y, s) {
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x, y + s);
+  ctx.lineTo(x + s, y);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawDiagonalRight(ctx, x, y, s) {
+  ctx.beginPath();
+  ctx.moveTo(x + s, y);
+  ctx.lineTo(x + s, y + s);
+  ctx.lineTo(x, y + s);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawCheckerboardTLBR(ctx, x, y, s) {
+  const h = s / 2;
+  ctx.fillRect(x, y, h, h);
+  ctx.fillRect(x + h, y + h, h, h);
+}
+
+function drawCheckerboardTRBL(ctx, x, y, s) {
+  const h = s / 2;
+  ctx.fillRect(x + h, y, h, h);
+  ctx.fillRect(x, y + h, h, h);
 }
 
 function clamp(value, min, max) {
